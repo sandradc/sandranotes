@@ -36,8 +36,9 @@ export const get = query({
   },
 });
 
-async function checkPassword(ctx: { db: any }, password: string) {
-  const secret = process.env.ADMIN_PASSWORD;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function checkPassword(password: string) {
+  const secret = (globalThis as any).process?.env?.ADMIN_PASSWORD as string | undefined;
   if (!secret || password !== secret) {
     throw new Error("Unauthorized");
   }
@@ -52,7 +53,7 @@ export const create = mutation({
     password: v.string(),
   },
   handler: async (ctx, args) => {
-    await checkPassword(ctx, args.password);
+    await checkPassword(args.password);
     const { password: _, ...post } = args;
     return await ctx.db.insert("posts", {
       ...post,
@@ -70,7 +71,7 @@ export const update = mutation({
     password: v.string(),
   },
   handler: async (ctx, args) => {
-    await checkPassword(ctx, args.password);
+    await checkPassword(args.password);
     const { id, password: _, ...fields } = args;
     const patch = Object.fromEntries(
       Object.entries(fields).filter(([, val]) => val !== undefined)
@@ -85,7 +86,7 @@ export const remove = mutation({
     password: v.string(),
   },
   handler: async (ctx, args) => {
-    await checkPassword(ctx, args.password);
+    await checkPassword(args.password);
     await ctx.db.delete(args.id);
   },
 });

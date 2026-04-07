@@ -24,10 +24,6 @@ export default function Admin() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const posts = useQuery(api.posts.list, authenticated ? {} : "skip");
-  const editingPost = useQuery(
-    api.posts.get,
-    editingId ? { id: editingId } : "skip"
-  );
   const createPost = useMutation(api.posts.create);
   const updatePost = useMutation(api.posts.update);
 
