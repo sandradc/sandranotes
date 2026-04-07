@@ -44,6 +44,14 @@ async function checkPassword(password: string) {
   }
 }
 
+export const authenticate = mutation({
+  args: { password: v.string() },
+  handler: async (_ctx, args) => {
+    await checkPassword(args.password);
+    return true;
+  },
+});
+
 export const create = mutation({
   args: {
     title: v.string(),

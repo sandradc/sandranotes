@@ -13,9 +13,9 @@ export default function Admin() {
   const [password, setPassword] = useState(
     () => sessionStorage.getItem("admin_pw") ?? ""
   );
-  const [authenticated, setAuthenticated] = useState(
-    () => !!sessionStorage.getItem("admin_pw")
-  );
+  const [authenticated, setAuthenticated] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
 
   const [editingId, setEditingId] = useState<Id<"posts"> | null>(null);
   const [title, setTitle] = useState("");
@@ -24,14 +24,26 @@ export default function Admin() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const posts = useQuery(api.posts.list, authenticated ? {} : "skip");
+  const authenticate = useMutation(api.posts.authenticate);
   const createPost = useMutation(api.posts.create);
   const updatePost = useMutation(api.posts.update);
 
-  const handleAuth = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password.trim()) {
+    if (!password.trim()) return;
+
+    setAuthLoading(true);
+    setAuthError("");
+
+    try {
+      await authenticate({ password: password.trim() });
       sessionStorage.setItem("admin_pw", password.trim());
       setAuthenticated(true);
+    } catch {
+      setAuthError("Wrong passphrase.");
+      sessionStorage.removeItem("admin_pw");
+    } finally {
+      setAuthLoading(false);
     }
   };
 
@@ -99,9 +111,10 @@ export default function Admin() {
             autoFocus
           />
         </div>
-        <button type="submit" className="admin-btn">
-          Enter
+        <button type="submit" className="admin-btn" disabled={authLoading}>
+          {authLoading ? "Checking..." : "Enter"}
         </button>
+        {authError && <p className="admin-error">{authError}</p>}
       </form>
     );
   }
