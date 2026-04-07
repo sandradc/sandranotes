@@ -8,7 +8,7 @@
     "build": "tsc -b tsconfig.app.json tsconfig.node.json && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "serve dist -s -l 3000"
+    "start": "serve dist -s -l ${PORT:-3000}"
   },
   "dependencies": {
     "convex": "^1.34.1",
